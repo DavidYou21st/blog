@@ -2,9 +2,7 @@ version: "3"
 
 services:
   laravel:
-    build:
-      context: .
-    working_dir: /var/www
+    image: tianya2022/laravel-blog:latest
     volumes:
       - ./:/var/www
       - ./docker/docker.env:/var/www/.env
@@ -19,16 +17,16 @@ services:
 #    image: redis:alpine
 
   mysql:
-    image: mysql:5.7
+    image: mysql
     ports:
       - "3306:3306"
     volumes:
       - ./docker/mysql:/var/lib/mysql
     environment:
         TZ: Asia/Shanghai
-        MYSQL_RANDOM_ROOT_PASSWORD: false
+        MYSQL_RANDOM_ROOT_PASSWORD: laravel
         MYSQL_ROOT_PASSWORD: laravel
+        MYSQL_ALLOW_EMPTY_PASSWORD: laravel
         MYSQL_USER: laravel
         MYSQL_PASSWORD: laravel
         MYSQL_DATABASE: laravel
-
