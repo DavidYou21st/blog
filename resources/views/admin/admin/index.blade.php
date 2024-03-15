@@ -39,7 +39,7 @@
             <!--
             <img src="{{asset(__ADMIN_IMAGES__.'/logo.png')}}"/>
             -->
-            <cite>laravel8管理后台</cite>
+            <cite>博客管理后台</cite>
         </div>
 
         <ul class="layui-nav layui-layout-left" id="topHeaderNav">

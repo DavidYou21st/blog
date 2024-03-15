@@ -114,9 +114,9 @@ abstract class BaseEnum
     public static function getBoolValue($value)
     {
         if($value == self::BOOL_YES){
-            return '<i class="layui-icon layui-icon-ok"></i>';
+            return '开启';
         }else if($value == self::BOOL_NO){
-            return '<i class="layui-icon layui-icon-close"></i>';
+            return '关闭';
         }else{
             return '';
         }

@@ -2,187 +2,117 @@
 
 namespace App\Http\Controllers\Admin\Blog;
 
-use Carbon\Carbon;
-use App\Libraries\Upload;
+use App\Http\Common\Utils\Helper;
+use App\Http\Common\Utils\ReturnData;
+use App\Http\Controllers\Admin\BaseController;
+use App\Services\Admin\Blog\CategoryService;
+use App\Services\Admin\Blog\PostsService;
 use Illuminate\Http\Request;
 use App\Models\Admin\Blog\Posts;
-use App\Http\Controllers\Controller;
-use App\Models\Admin\Blog\Categorys;
+use App\Models\Admin\Blog\Categories;
+use Illuminate\Http\Response;
 
-class PostsController extends Controller
+class PostsController extends BaseController
 {
-    const UPLOAD_PATH = 'blog/posts/';
-    const UPLOAD_ROUTE = 'admin.blog.posts.upload';
-
     /**
      * @var Posts
      */
     protected $posts;
 
-    protected $categorys;
+    protected $categories;
 
     /**
      * PostsController constructor.
      * @param Posts $posts
-     * @param Categorys $categorys
+     * @param Categories $categories
      */
-    public function __construct(Posts $posts, Categorys $categorys)
+    public function __construct(Posts $posts, Categories $categories)
     {
         $this->posts = $posts;
-        $this->categorys = $categorys;
+        $this->categories = $categories;
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $posts = $this->posts->sortable(['created_at' => 'desc'])->whereHas('category')->paginate(10);
-
-        return view('admin.blog.posts.index', ['posts' => $posts]);
+        $service = $this->getService(PostsService::class);
+        if(Helper::isAjaxRequest())
+        {
+            $search = $request->input();
+            return $service->getList($search);
+        }
+        return view('admin.blog.posts.index');
     }
 
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        $categorys = $this->categorys->all();
-
-        return view('admin.blog.posts.create', ['categorys' => $categorys]);
+        $service = $this->getService(PostsService::class);
+        $post = $request->post();
+        return $service->add($post);
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return \Illuminate\Http\Response
+     * 显示表单
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
-    public function store(Request $request)
+    public function show()
     {
-        $this->validate($request, [
-            'publish_at' => 'required',
-            'category_id' => 'required|integer',
-            'title' => 'required',
-            'summary' => 'required',
-            'description' => 'required',
+        $categories = $this->getService(CategoryService::class)->all();
+        return view('admin/blog/posts/form',[
+            'categories'=>$categories,
         ]);
-
-        $postDetails = $request->all();
-        $postDetails['publish_at'] = new Carbon($request->publish_at);
-        $postDetails['status'] = isset($request->status) ? 1 : 0;
-        $post = $this->posts->create($postDetails);
-
-        $user = $request->user();
-        $path_from = self::UPLOAD_PATH.'temp-'.$user->id.'/';
-        $path_to = self::UPLOAD_PATH.$post->id;
-
-        if (\Storage::disk('uploads')->exists($path_from)) {
-            \Storage::disk('uploads')->move($path_from, $path_to);
-        }
-
-        \Session::flash('success', trans('admin/blog.posts.store.messages.success'));
-
-        return redirect()->route('admin.blog.posts.index')->withInput();
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        $categorys = $this->categorys->all();
-        $post = $this->posts->find($id);
-
-        return view('admin.blog.posts.edit', ['categorys' => $categorys, 'post' => $post]);
+    /*
+     * 获取详细
+     * */
+    public function detail(Request $request){
+        if(Helper::isAjaxRequest())
+        {
+            $id = $request->get('id');
+            $service = $this->getService(PostsService::class);
+            $postsModel =  $service->findModel($id);
+            return ReturnData::success($postsModel);
+        }
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param \Illuminate\Http\Request $request
-     * @param int                      $id
-     *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function update(Request $request)
     {
-        $this->validate($request, [
-            'publish_at' => 'required',
-            'category_id' => 'required|integer',
-            'title' => 'required',
-            'description' => 'required',
-            'summary' => 'required',
-        ]);
-
-        $post = $this->posts->find($request->id);
-
-        $postDetails = $request->all();
-        $postDetails['publish_at'] = new Carbon($request->publish_at);
-        $postDetails['status'] = isset($request->status) ? 1 : 0;
-        $post->update($postDetails);
-
-        \Session::flash('success', trans('admin/blog.posts.update.messages.success'));
-
-        return redirect()->route('admin.blog.posts.index')->withInput();
+        $service = $this->getService(PostsService::class);
+        $post = $request->post();
+        return $service->edit($post,['id'=>$post['id']]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy(Request $request)
     {
-        if (is_null($request->posts)) {
-            \Session::flash('info', trans('admin/blog.posts.destroy.messages.info'));
+        if (Helper::isAjaxRequest())
+        {
+            $id = $request->post('id');
+            return $this->getService($this->serviceObject)->del($id);
+        } else {
 
-            return redirect()->route('admin.blog.posts.index');
         }
-
-        $this->posts->destroy($request->posts);
-        \Session::flash('success', trans('admin/blog.posts.destroy.messages.success'));
-
-        // Precisamos remover as imagens desse ID também
-        // tem que ser um foreach porque é um array de galerias
-        foreach ($request->posts as $id) {
-            // Checamos se o diretório existe
-            $path = self::UPLOAD_PATH.$id;
-
-            // Deletamos o diretório da imagem
-            if (\Storage::disk('uploads')->exists($path)) {
-                \Storage::disk('uploads')->deleteDirectory($path);
-            }
-        }
-
-        return redirect()->route('admin.blog.posts.index');
-    }
-
-    /**
-     * Faz o envio ou carrrega as imagens de um diretório.
-     *
-     * @param int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function upload(Request $request, $id = null)
-    {
-        new Upload(
-            $request,
-            [
-                'id' => $id,
-                'route' => self::UPLOAD_ROUTE, // Route `routes/web.app`
-                'path' => self::UPLOAD_PATH, // Path to upload file
-            ]
-        );
     }
 }

@@ -2,12 +2,14 @@
 
 namespace App\Models\Admin\Blog;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Http\Common\Traits\ModelTrait;
+use App\Models\BaseModel;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Comments extends Model
+class Comments extends BaseModel
 {
-    use SoftDeletes;
+    use SoftDeletes, ModelTrait, HasFactory;
 
     protected $table = 'blog_comments';
 

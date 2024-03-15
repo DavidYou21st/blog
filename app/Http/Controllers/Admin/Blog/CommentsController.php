@@ -2,16 +2,23 @@
 
 namespace App\Http\Controllers\Admin\Blog;
 
+use App\Http\Common\Utils\Helper;
+use App\Http\Controllers\Admin\BaseController;
 use App\Models\Admin\Blog\Comments;
-use App\Http\Controllers\Controller;
+use App\Services\Admin\Blog\CommentService;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
-class CommentsController extends Controller
+class CommentsController extends BaseController
 {
     /**
      * @var Comments
      */
     protected $comments;
-
+    /**
+     * @var serviceObject
+     */
+    protected $serviceObject;
     /**
      * CommentsController constructor.
      * @param Comments $comments
@@ -19,42 +26,44 @@ class CommentsController extends Controller
     public function __construct(Comments $comments)
     {
         $this->comments = $comments;
+        $this->serviceObject = CommentService::class;
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $comments = $this->comments->where('status', '=', 0)->whereHas('post')->paginate(10);
-
-        return view('admin.blog.comments.index', ['comments' => $comments]);
+        $service = $this->getService($this->serviceObject);
+        if(Helper::isAjaxRequest())
+        {
+            $search = $request->input();
+            return $service->getList($search);
+        }
+        return view('admin.blog.comments.index');
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function aproved()
     {
-        $comments = $this->comments->where('status', '=', 1)->whereHas('post')->paginate(10);
 
-        return view('admin.blog.comments.aproved', ['comments' => $comments]);
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function reproved()
     {
-        $comments = $this->comments->where('status', '=', 2)->whereHas('post')->paginate(10);
 
-        return view('admin.blog.comments.reproved', ['comments' => $comments]);
     }
 
     /**
@@ -62,7 +71,7 @@ class CommentsController extends Controller
      *
      * @param  $id
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function aprove($id)
     {
@@ -79,7 +88,7 @@ class CommentsController extends Controller
      *
      * @param  $id
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function reprove($id)
     {
@@ -89,5 +98,22 @@ class CommentsController extends Controller
         \Session::flash('success', trans('admin/blog.comments.reprove.messages.success'));
 
         return redirect()->back();
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function destroy(Request $request)
+    {
+        if (Helper::isAjaxRequest())
+        {
+            $id = $request->post('id');
+            return $this->getService($this->serviceObject)->del($id);
+        } else {
+
+        }
     }
 }

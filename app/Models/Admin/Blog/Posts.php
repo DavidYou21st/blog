@@ -2,16 +2,18 @@
 
 namespace App\Models\Admin\Blog;
 
+use App\Http\Common\Traits\ModelTrait;
+use App\Models\BaseModel;
 use App\Traits\SeoTrait;
 use App\Traits\ImageTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Kyslik\ColumnSortable\Sortable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Nicolaslopezj\Searchable\SearchableTrait;
 
-class Posts extends Model
+class Posts extends BaseModel
 {
-    use SoftDeletes, Sortable, SeoTrait, ImageTrait, SearchableTrait;
+    use SoftDeletes, Sortable, SeoTrait, ImageTrait, SearchableTrait, ModelTrait, HasFactory;
 
     protected $table = 'blog_posts';
 
@@ -60,7 +62,7 @@ class Posts extends Model
 
     public function category()
     {
-        return $this->belongsTo('App\Models\Admin\Blog\Categorys');
+        return $this->belongsTo('App\Models\Admin\Blog\Categories');
     }
 
     // -------------------------------------------------------------------------------

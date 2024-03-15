@@ -24,5 +24,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         //
+        define("ADMIN_MANAGER_ID", 1);
     }
 }

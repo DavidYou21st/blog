@@ -85,7 +85,18 @@ class DatabaseSeeder extends Seeder
             ['role_id' => 1,'privilege_id' => 3],
             ['role_id' => 1,'privilege_id' => 4],
             ['role_id' => 1,'privilege_id' => 5],
-            ['role_id' => 1,'privilege_id' => 6]
+            ['role_id' => 1,'privilege_id' => 6],
+            ['role_id' => 1,'privilege_id' => 7],
+            ['role_id' => 1,'privilege_id' => 8],
+            ['role_id' => 2,'privilege_id' => 1],
+            ['role_id' => 2,'privilege_id' => 2],
+            ['role_id' => 2,'privilege_id' => 3],
+            ['role_id' => 2,'privilege_id' => 4],
+            ['role_id' => 2,'privilege_id' => 5],
+            ['role_id' => 2,'privilege_id' => 6],
+            ['role_id' => 2,'privilege_id' => 7],
+            ['role_id' => 2,'privilege_id' => 8],
+            ['role_id' => 2,'privilege_id' => 24],
         ];
         foreach ($rolePrivilegeList as $arr) {
             \App\Models\Admin\RolePrivilege::factory()->create($arr);
@@ -178,6 +189,20 @@ class DatabaseSeeder extends Seeder
         ],[
             'id' => 7,
             'privilege_name' => '日志管理',
+            'module_name' => '#',
+            'controller_name' => '#',
+            'action_name' => '#',
+            'route_url' => '#',
+            'route_name' => '#',
+            'parameter' => '',
+            'privilege_icon' => 'layui-icon-note',
+            'target' => '_self',
+            'orders' => 0,
+            'is_menu' => 1,
+            'parent_id' => 1,
+        ],[
+            'id' => 8,
+            'privilege_name' => '博客管理',
             'module_name' => '#',
             'controller_name' => '#',
             'action_name' => '#',
@@ -371,10 +396,145 @@ class DatabaseSeeder extends Seeder
             'orders' => 0,
             'is_menu' => 0,
             'parent_id' => 7,
+        ],[
+            'privilege_name' => '博客分类',
+            'module_name' => 'admin/blog',
+            'controller_name' => 'CategoriesController',
+            'action_name' => 'index',
+            'route_url' => '/admin/blog/categories',
+            'route_name' => 'blogCategoriesList',
+            'parameter' => '',
+            'privilege_icon' => 'fa-paw',
+            'target' => '_self',
+            'orders' => 0,
+            'is_menu' => 1,
+            'parent_id' => 8,
+        ],[
+            'privilege_name' => '博客列表',
+            'module_name' => 'admin/blog',
+            'controller_name' => 'PostsController',
+            'action_name' => 'index',
+            'route_url' => '/admin/blog/posts',
+            'route_name' => 'blogPostsList',
+            'parameter' => '',
+            'privilege_icon' => 'fa-paw',
+            'target' => '_self',
+            'orders' => 0,
+            'is_menu' => 1,
+            'parent_id' => 8,
+        ],[
+            'privilege_name' => '博客评论',
+            'module_name' => 'admin/blog',
+            'controller_name' => 'CommentsController',
+            'action_name' => 'index',
+            'route_url' => '/admin/blog/comments/list',
+            'route_name' => 'blogCommentsList',
+            'parameter' => '',
+            'privilege_icon' => 'fa-paw',
+            'target' => '_self',
+            'orders' => 0,
+            'is_menu' => 1,
+            'parent_id' => 8,
+        ],[
+            'privilege_name' => '新增博客',
+            'module_name' => 'admin',
+            'controller_name' => 'blog\PostsController',
+            'action_name' => 'create',
+            'route_url' => '/admin/blog/posts/add',
+            'route_name' => 'blogPostsAdd',
+            'parameter' => '',
+            'privilege_icon' => '',
+            'target' => '_self',
+            'orders' => 0,
+            'is_menu' => 0,
+            'parent_id' => 8,
+        ],[
+            'privilege_name' => '编辑博客',
+            'module_name' => 'admin',
+            'controller_name' => 'blog\PostsController',
+            'action_name' => 'update',
+            'route_url' => '/admin/blog/posts/update',
+            'route_name' => 'blogPostsEdit',
+            'parameter' => '',
+            'privilege_icon' => '',
+            'target' => '_self',
+            'orders' => 0,
+            'is_menu' => 0,
+            'parent_id' => 8,
+        ],[
+            'privilege_name' => '博客表单',
+            'module_name' => 'admin',
+            'controller_name' => 'blog\PostsController',
+            'action_name' => 'form',
+            'route_url' => '/admin/blog/posts/form',
+            'route_name' => 'blogPostsForm',
+            'parameter' => '',
+            'privilege_icon' => '',
+            'target' => '_self',
+            'orders' => 0,
+            'is_menu' => 0,
+            'parent_id' => 8,
         ]];
 
         foreach ($privilegeList as $arr) {
             \App\Models\Admin\Privilege::factory()->create($arr);
+        }
+        $blogCateList = [[
+            'id' => 1,
+            'title' => '分类一',
+            'status' => 1,
+            'order' => 0,
+            'created_at' => '2024-03-13 09:50:58',
+        ],[
+            'id' => 2,
+            'title' => '分类二',
+            'status' => 1,
+            'order' => 1,
+            'created_at' => '2024-03-14 09:50:58',
+        ]];
+        foreach ($blogCateList as $arr) {
+            \App\Models\Admin\Blog\Categories::factory()->create($arr);
+        }
+        $blogList = [[
+            'id' => 1,
+            'title' => '测试博客创建',
+            'status' => 1,
+            'user_id' => 1,
+            'summary' => '测试博客创建',
+            'category_id' => 1,
+            'publish_at' => '2024-03-29 09:50:58',
+            'created_at' => '2024-03-13 09:50:58',
+        ],[
+            'id' => 2,
+            'title' => '测试博客发布',
+            'status' => 1,
+            'user_id' => 2,
+            'category_id' => 1,
+            'summary' => '测试博客发布',
+            'publish_at' => '2024-03-19 09:50:58',
+            'created_at' => '2024-03-14 09:50:58',
+        ]];
+        foreach ($blogList as $arr) {
+            \App\Models\Admin\Blog\Posts::factory()->create($arr);
+        }
+
+        $blogCommentList = [[
+            'id' => 1,
+            'user_id' => 1,
+            'name' => '测试评论一',
+            'status' => 1,
+            'post_id' => 1,
+            'created_at' => '2024-03-14 09:50:58',
+        ],[
+            'id' => 2,
+            'user_id' => 1,
+            'name' => '测试评论二',
+            'status' => 1,
+            'post_id' => 1,
+            'created_at' => '2024-03-14 19:50:58',
+        ]];
+        foreach ($blogCommentList as $arr) {
+            \App\Models\Admin\Blog\Comments::factory()->create($arr);
         }
     }
 }

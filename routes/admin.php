@@ -86,7 +86,35 @@ Route::group(['namespace' => 'Admin','prefix'=>'admin','middleware' => ['admin.a
     Route::post('/branch_del','BranchController@delete')->name('branchDelete');
     Route::any('/branch_view','BranchController@view')->name('branchView');
 
+    //博客路由
+    Route::group(['prefix' => 'blog'], function () {
+        // categories
+        Route::get('categories','Blog\CategoriesController@index')->name('blogCategoriesList');
+        Route::post('categories','Blog\CategoriesController@index');
+        Route::any('categories/form','Blog\CategoriesController@form')->name('blogCategoriesForm');
+        Route::any('categories/create','Blog\CategoriesController@create')->name('blogCategoriesAdd');
+        Route::post('categories/update', 'Blog\CategoriesController@update')->name('blogCategoriesEdit');
+        Route::post('categories/destroy', 'Blog\CategoriesController@destroy')->name('blogCategoriesDestroy');
+        Route::post('categories/detail','Blog\CategoriesController@detail')->name('blogCategoriesDetail');
 
+        // Posts
+//        Route::resource('posts', 'Blog\PostsController');
+        Route::get('posts','Blog\PostsController@index')->name('blogPostsList');
+        Route::post('posts','Blog\PostsController@index');
+        Route::any('posts/form','Blog\PostsController@form')->name('blogPostsForm');
+        Route::any('posts/create','Blog\PostsController@create')->name('blogPostsAdd');
+        Route::post('posts/update', 'Blog\PostsController@update')->name('blogPostsEdit');
+        Route::post('posts/destroy', 'Blog\PostsController@destroy')->name('blogPostsDestroy');
+        Route::any('posts/upload', 'Blog\PostsController@upload')->name('blogPostsUpload');
+        Route::post('posts/detail','Blog\PostsController@detail')->name('blogPostsDetail');
+
+        // Comments
+        Route::group(['prefix' => 'comments'], function () {
+            Route::get('list', 'Blog\CommentsController@index')->name('blogCommentsList');
+            Route::post('list','Blog\CommentsController@index');
+            Route::post('destroy', 'Blog\CommentsController@destroy')->name('blogCommentsDestroy');
+        });
+    });
     Route::any('/queue','\App\Http\Controllers\Admin\QueueController@setQueueTest')->name('setQueueTest');
 });
 
